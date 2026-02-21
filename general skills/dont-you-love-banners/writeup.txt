@@ -1,0 +1,47 @@
+Challenge: dont-you-love-banners
+URL:https://play.picoctf.org/practice/challenge/437?category=5&difficulty=2&page=1
+Author: Loic Shema / syreal
+Description:
+Can you abuse the banner?
+The server has been leaking some crucial information on tethys.picoctf.net 51707. Use the leaked information to get to the server.
+To connect to the running application use nc tethys.picoctf.net 65025. From the above information abuse the machine and find the flag in the /root directory.
+**these changes on every new instances**
+
+Challenge Type:
+    1.Local Privilege Escalation
+    2.Symlink Attack
+    3.Misconfigured Privileged Script
+    4.Information Disclosure (banner leak)
+
+-- A banner is the initial message a network service sends when a client connects to it.
+    It usually contains:
+        Software name
+        Version number
+        Protocol version
+        OS information
+            eg:SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.3
+    Banners help:
+        Confirm protocol compatibility
+        Identify server software
+        Provide debugging info
+        For example:
+            SSH identifies protocol version
+            FTP displays welcome message
+            Web servers send headers
+In this challenge we got "My_Passw@rd_@1234" from banner which was a password, the server asks this password first after that it asks from some question which can be answered from web search.
+successful login as player takes us to a terminal in which we can find a script for banner in the root folder which just checks the conditions.
+As the priority for the player is limited we need to access the /root/flag.txt by root as user.
+When a program runs:
+    It runs with the privileges of its owner.
+    If owned by root → it executes as root.
+In this challenge:
+    The script runs as root.
+    Therefore, it can read /root/flag.txt.
+Now about the main part:
+    Symbolic Link (Symlink):
+        A symlink is a file that points to another file path. Basically a pointer. It does not contain the data. It only stores a reference path.
+    So we created the banner pointing to /root/flag.txt which printed the flag instead of the default banner.
+
+
+In short:
+At first, we connected to the server and noticed that the SSH banner leaked a password. That was unusual and clearly intentional. We used that password to access the challenge service and answered the security questions correctly. Once inside the system, we explored the files and discovered a root-owned Python script that read a file called banner from our home directory. Since that file was in a location we controlled, we realized we could replace it with a symbolic link pointing to /root/flag.txt. When the root script ran again, it followed the symlink and printed the contents of the flag file. That’s how we escalated privileges and captured the flag.
